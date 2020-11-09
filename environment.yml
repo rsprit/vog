@@ -1,0 +1,13 @@
+name: vog
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7
+  - pandas
+  - numpy
+  - biopython
+  - pydantic
+  - fastapi=0.61.*
+  - uvicorn
+  - jupyterlab
