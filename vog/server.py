@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException, Query
 from typing import Optional, List
 from .service import VogService
-from .domain import Alignment, Protein, Gene, Species, Group, Stringency
+from .domain import Sequence, Species, Group, Stringency
 
 svc = VogService('data')
 api = FastAPI()
+
+
+def to_sequence(record):
+    return Sequence(id=record.id, seq=str(record.seq), description=record.description)
 
 
 @api.get('/species', response_model=List[Species])
@@ -20,20 +24,18 @@ async def get_species(key: int):
         raise HTTPException(404)
 
 
-@api.get('/proteins/{key}', response_model=Protein)
+@api.get('/proteins/{key}', response_model=Sequence)
 async def get_protein(key: str):
     try:
-        record = svc.proteins[key]
-        return Protein(id=record.id, description=record.description, seq=str(record.seq))
+        return to_sequence(svc.proteins[key])
     except KeyError:
         raise HTTPException(404)
 
 
-@api.get('/genes/{key}', response_model=Gene)
+@api.get('/genes/{key}', response_model=Sequence)
 async def get_gene(key: str):
     try:
-        record = svc.genes[key]
-        return Gene(id=record.id, description=record.description, seq=str(record.seq))
+        return to_sequence(svc.genes[key])
     except KeyError:
         raise HTTPException(404)
 
@@ -54,17 +56,17 @@ async def get_group(key: str):
         raise HTTPException(404)
 
 
-@api.get('/groups/{key}/proteins', response_model=List[Protein])
+@api.get('/groups/{key}/proteins', response_model=List[Sequence])
 async def get_group_proteins(key: str):
     try:
-        return [Protein(id=s.id, seq=str(s.seq), description=s.description) for s in svc.groups.proteins(key)]
+        return list(map(to_sequence, svc.groups.proteins(key)))
     except KeyError:
         raise HTTPException(404)
 
 
-@api.get('/groups/{key}/alignment', response_model=List[Alignment])
+@api.get('/groups/{key}/alignment', response_model=List[Sequence])
 async def get_group_alignment(key: str):
     try:
-        return [Alignment(id=s.id, seq=str(s.seq), description=s.description) for s in svc.groups.alignment(key)]
+        return list(map(to_sequence, svc.groups.alignment(key)))
     except KeyError:
         raise HTTPException(404)

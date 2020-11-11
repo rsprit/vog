@@ -9,19 +9,7 @@ class Stringency(str, Enum):
     high = 'high'
 
 
-class Alignment(BaseModel):
-    id: str
-    seq: str
-    description: str
-
-
-class Protein(BaseModel):
-    id: str
-    seq: str
-    description: Optional[str] = None
-
-
-class Gene(BaseModel):
+class Sequence(BaseModel):
     id: str
     seq: str
     description: Optional[str] = None
