@@ -1,7 +1,7 @@
 name: vog
 channels:
-  - conda-forge
   - defaults
+  - conda-forge
 dependencies:
   - python=3.7
   - pandas
