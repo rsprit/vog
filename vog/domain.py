@@ -9,6 +9,12 @@ class Stringency(str, Enum):
     high = 'high'
 
 
+class Alignment(BaseModel):
+    id: str
+    seq: str
+    description: str
+
+
 class Protein(BaseModel):
     id: str
     seq: str
@@ -18,6 +24,7 @@ class Protein(BaseModel):
 class Gene(BaseModel):
     id: str
     seq: str
+    description: Optional[str] = None
 
 
 class Species(BaseModel):
@@ -42,4 +49,3 @@ class Group(BaseModel):
     stringency_high: bool
     stringency_medium: bool
     stringency_low: bool
-

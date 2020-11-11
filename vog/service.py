@@ -1,6 +1,6 @@
 import os
 from pandas import read_table
-from Bio import SeqIO
+from Bio import SeqIO, AlignIO
 from .domain import Group, Species, Stringency
 
 
@@ -13,8 +13,8 @@ class SpeciesService:
                                 index_col='id') \
             .assign(phage=lambda df: df.phage == 'phage')
 
-    def __getitem__(self, id):
-        return Species(id=id, **self._data.loc[id])
+    def __getitem__(self, key):
+        return Species(id=key, **self._data.loc[key])
 
     def find(self, name=None, phage=None):
         result = self._data
@@ -24,8 +24,8 @@ class SpeciesService:
         if name is not None:
             result = result[result.name.apply(lambda x: name.lower() in x.lower())]
 
-        for id, row in result.iterrows():
-            yield Species(id=id, **row)
+        for key, row in result.iterrows():
+            yield Species(id=key, **row)
 
 
 class GroupService:
@@ -66,11 +66,11 @@ class GroupService:
 
         self._data = members.join(annotations).join(lca).join(virusonly)
 
-    def __getitem__(self, id):
-        return Group(id=id, **self._data.loc[id])
+    def __getitem__(self, key):
+        return Group(id=key, **self._data.loc[key])
 
     def find(self, description=None, species=None, stringency=None):
-        for id, row in self._data.iterrows():
+        for key, row in self._data.iterrows():
             if description is not None:
                 if description.lower() not in row.description.lower():
                     continue
@@ -87,11 +87,21 @@ class GroupService:
                 if stringency == Stringency.low and not row.stringency_low:
                     continue
 
-            yield Group(id=id, **row)
+            yield Group(id=key, **row)
 
-    def proteins(self, id):
-        filename = os.path.join(self._directory, 'faa', '{}.faa'.format(id))
-        return SeqIO.parse(filename, 'fasta')
+    def proteins(self, key):
+        try:
+            filename = os.path.join(self._directory, 'faa', '{}.faa'.format(key))
+            return SeqIO.parse(filename, 'fasta')
+        except FileNotFoundError:
+            raise KeyError(key)
+
+    def alignment(self, key):
+        try:
+            filename = os.path.join(self._directory, 'raw_algs', '{}.msa'.format(key))
+            return AlignIO.read(filename, 'fasta')
+        except FileNotFoundError:
+            raise KeyError(key)
 
 
 class VogService:
