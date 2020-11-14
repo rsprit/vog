@@ -8,6 +8,7 @@ dependencies:
   - numpy
   - biopython
   - pydantic
-  - fastapi=0.61.*
+  - fastapi
+  - graphene
   - uvicorn
   - jupyterlab
